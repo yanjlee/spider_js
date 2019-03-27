@@ -69,6 +69,7 @@ class XieCheng():
     def __del__(self):
         self.session.close()
 
+
     def eleven_js_decorator(self, fun):
         def __decorator(*args, **kwargs):
             eleven_js = fun(*args, **kwargs)

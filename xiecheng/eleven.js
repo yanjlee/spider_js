@@ -16,6 +16,7 @@ function get_eleven(text, url) {
         geolocation: {}
     }
 
+
     function Image() {
     }
 
