@@ -24,10 +24,10 @@ class XieCheng():
         'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
         "If-Modified-Since": "Thu, 01 Jan 1970 00:00:00 GMT",
     }
-    cookies = {
-        '_zQdjfing': '275ad065b02e5fa4cc5fa4cc3165bb4ea084d5c0863365ac5fa4cc',
-        'fcerror': '693370523',
-    }
+    # cookies = {
+    #     '_zQdjfing': '275ad065b02e5fa4cc5fa4cc3165bb4ea084d5c0863365ac5fa4cc',
+    #     'fcerror': '693370523',
+    # }
 
     def __init__(self, roomid, cityid=2):
         '''
@@ -39,7 +39,7 @@ class XieCheng():
         url = 'https://hotels.ctrip.com/domestic/hotel/{}.html'.format(roomid)
         print(url)
         self.session = requests.Session()
-        self.session.cookies.update(self.cookies)
+
         self.session.headers.update(self.headers)
         self.session.verify = False
         # self.session.proxies = {'https': 'http://127.0.0.1:8888', 'http': 'http://127.0.0.1:8888'}
@@ -47,7 +47,8 @@ class XieCheng():
         self.address = ''.join(
             [item.strip() for item in etree.HTML(self.session.get(url).text).xpath('//div[@class="adress"]//text()') if
              item.strip()])
-
+        self.session.cookies['fcerror']=self.hash(str(roomid)+self.headers['User-Agent'])
+        print(self.session.cookies.items())
         self.session.headers.update({'Referer': url})
         # self.session.get('https://accounts.ctrip.com/member/ajax/AjaxGetCookie.ashx?jsonp=BuildHTML&r=0.19726222758383472&encoding=0')
         # self.session.get('https://hotels.ctrip.com/Domestic/tool/AjaxGetHotelAddtionalInfo.ashx?commentData=1&browseData=1&routeData=1&groupProductData=1&favData=1&provinceId=2&cityId=2&hotelId=7067729&lng=121.654764&lat=31.025842&ck=0%2c0%2c4.7%2c18%2c%2f200s10000000pq6vyF0D9.jpg%2c&hotelidlist=7067729&favCount=7')
@@ -56,6 +57,14 @@ class XieCheng():
         self.start_date = datetime.date.today()
         self.dep_date = (datetime.timedelta(days=1) + self.start_date)
         self.init_font_map()
+
+    def hash(self,text):
+        js_fun='''
+        function hash(text) {
+      var encode = require( 'hashcode' ).hashCode;
+     return Math.abs(encode().value( text))+"";}
+        '''
+        return execjs.compile(js_fun).call('hash',text)
 
     def __del__(self):
         self.session.close()

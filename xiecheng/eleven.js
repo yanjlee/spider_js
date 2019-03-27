@@ -8,7 +8,7 @@ function get_eleven(text, url) {
     }
     let JSDOM = require('jsdom').JSDOM
     dom = new JSDOM('<html><head><body>hh</body></head></html>')
-    location = {'href': 'https://hotels.ctrip.com/domestic/hotel/7067729.html?isFull=F'}
+    location = {'href': url}
     document = dom.window.document
     window = {location: location, document: document}
     navigator = {
