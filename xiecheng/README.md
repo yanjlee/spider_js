@@ -12,9 +12,7 @@
 ##### 已解决的问题
 * eleven 值的自动获取
 * 房价数据的字体转换
-
-##### 待解决的问题
 * cookie自动生成的问题
     * _zQdjfing
     * fcerror
-* xpath解析   
+    * hashCode重写
