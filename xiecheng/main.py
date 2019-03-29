@@ -39,32 +39,23 @@ class XieCheng():
         url = 'https://hotels.ctrip.com/domestic/hotel/{}.html'.format(roomid)
         print(url)
         self.session = requests.Session()
-
         self.session.headers.update(self.headers)
         self.session.verify = False
-        # self.session.proxies = {'https': 'http://127.0.0.1:8888', 'http': 'http://127.0.0.1:8888'}
-        # self.session.proxies = {'https': 'socks5://47.94.249.10:1080', 'http': 'socks5://47.94.249.10:1080'}
         self.address = ''.join(
             [item.strip() for item in etree.HTML(self.session.get(url).text).xpath('//div[@class="adress"]//text()') if
              item.strip()])
-        self.session.cookies['fcerror']=self.hash(str(roomid)+self.headers['User-Agent'])
-        print(self.session.cookies.items())
+
+        self.session.cookies.update(self.get_cookies(str(roomid)+self.headers['User-Agent']))
         self.session.headers.update({'Referer': url})
-        # self.session.get('https://accounts.ctrip.com/member/ajax/AjaxGetCookie.ashx?jsonp=BuildHTML&r=0.19726222758383472&encoding=0')
-        # self.session.get('https://hotels.ctrip.com/Domestic/tool/AjaxGetHotelAddtionalInfo.ashx?commentData=1&browseData=1&routeData=1&groupProductData=1&favData=1&provinceId=2&cityId=2&hotelId=7067729&lng=121.654764&lat=31.025842&ck=0%2c0%2c4.7%2c18%2c%2f200s10000000pq6vyF0D9.jpg%2c&hotelidlist=7067729&favCount=7')
         self.url = url
         self.call_back_value = 'CASrYVcraFQgjGciKk'
         self.start_date = datetime.date.today()
         self.dep_date = (datetime.timedelta(days=1) + self.start_date)
         self.init_font_map()
 
-    def hash(self,text):
-        js_fun='''
-        function hash(text) {
-      var encode = require( 'hashcode' ).hashCode;
-     return Math.abs(encode().value( text))+"";}
-        '''
-        return execjs.compile(js_fun).call('hash',text)
+    def get_cookies(self,text):
+        with open('cookies.js',encoding='utf-8') as fr:
+            return execjs.compile( fr.read()).call('get_cookies',text)
 
     def __del__(self):
         self.session.close()
@@ -147,12 +138,17 @@ class XieCheng():
         b64_font = base64encode(json.dumps(response.json()))
         html_content = base64decode(self.font_js.call('parser', b64_font))
         # html_content=response.json()['html'] 直接使用返回的html，价格不对。
-        with open('xiecheng.html', 'w', encoding='utf-8') as fw:
-            fw.write(html_content)
         self.parser(html_content)
+        with open('xiecheng.html', 'w', encoding='utf-8') as fw:
+            html_content='''<html><head><meta charset="UTF-8"></head><body>{}</body></html>'''.format(html_content)
+            fw.write(html_content)
+
 
     def parser(self, html_content):
         print('{} 房间分布已经抓取，请到xiecheng.html查看'.format(self.address))
+        xml = etree.HTML(html_content)
+        price = xml.xpath('//*/@data-pricedisplay')
+        print('真实房价',price)
 
     def init_font_map(self):
         with open('font_map.js', encoding='utf-8') as fr:
@@ -160,9 +156,9 @@ class XieCheng():
 
 
 if __name__ == '__main__':
-    roomid=7067729
-    cityid = 2  # 上海
-    # roomid = 452197
-    # cityid = 1  # 北京
+    # roomid=7067729
+    # cityid = 2  # 上海
+    roomid = 6410223
+    cityid = 1  # 北京
 
     XieCheng(roomid, cityid=cityid).run()
