@@ -6,7 +6,13 @@
 * 运行main.py
     * 根据hotalid和cityid进行抓取
     * 并会生成xiecheng.html文件,用firefox打开，选择unicode编码，和main函数请求的地址的价格进行对比
+    
+### 反爬点 ###
 
+![](https://i.imgur.com/u2n8beV.jpg)
+
+### 效果mp4 ###
+*  见项目
 
 
 ##### 已解决的问题
